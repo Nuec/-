@@ -1,1 +1,177 @@
+  syntax on
+  set number
+  set showmatch
+  set visualbell
+  set ruler
+  set virtualedit=onemore
+  set textwidth=4
+  set cursorline
+  set noswapfile
+  set autoindent
+  " コマンドラインに使われる画面上の行数
+  set cmdheight=2
+  " エディタウィンドウの末尾から2行目にステータスラインを常時表示させる
+  set laststatus=2
+  " ステータス行に表示させる情報の指定(どこからかコピペしたので細かい意味はわ>    かっていない)
+  set statusline=%<%f\ %m%r%h%w%{'['.(&fenc!=''?&fenc:&enc).']['.&ff.']'}%=%l,    %c%V%8P
+  " 入力中のコマンドを表示する
+  set showcmd
+  " 改行時に入力された行の末尾に合わせて次の行のインデントを増減する
+  set smartindent
+  set tabstop=4
+  set shiftwidth=4
+  " 行頭の余白内で Tab を打ち込むと、'shiftwidth' の数だけインデントする
+  set smarttab
+  " カーソルを行頭、行末で止まらないようにする
+  set whichwrap=b,s,h,l,<,>,[,]
+  colorscheme desert
+  " 行番号の色
+  highlight LineNr ctermfg=darkyellow
+ 
+ 
+  """"""""""""""""""""""""""""""
+ 
+  "入力モード時のカーソル移動
+  inoremap <C-j> <Down>
+  inoremap <C-k> <Up>
+  inoremap <C-h> <Left>
+  inoremap <C-l> <Right>
+  inoremap <silent> jj <ESC>
+  inoremap <silent> っj <ESC>
+  "検索系
+  "検索文字列が小文字の場合は文字を大小区別なく検索する                  
+  set ignorecase
+  "検索文字列に大文字が含まれている場合は区別して検索する
+  set smartcase
+  "検索時に最後まで行ったら最初に戻る
+  set wrapscan
+  "検索文字列入力時に順次対象文字列にヒットさせる
+  set incsearch
+ 
+ 
+  "ダーク系のカラースキームを使う
+  set background=dark
+ 
+  " neobundle settings {{{
+  if has('vim_starting')
+    set nocompatible
+    " neobundle をインストールしていない場合は自動インストール
+    if !isdirectory(expand("~/.vim/bundle/neobundle.vim/"))
+      echo "install neobundle..."
+      " vim からコマンド呼び出しているだけ neobundle.vim のクローン
+      :call system("git clone git://github.com/Shougo/neobundle.vim ~/.vim/bun    dle/neobundle.vim")
+    endif
+    " runtimepath の追加は必須
+    set runtimepath+=~/.vim/bundle/neobundle.vim/
+  endif
+  call neobundle#begin(expand('~/.vim/bundle'))
+  let g:neobundle_default_git_protocol='https'
+ 
+  " neobundle#begin - neobundle#end の間に導入するプラグインを記載します。
+  NeoBundleFetch 'Shougo/neobundle.vim'
+  " ↓こんな感じが基本の書き方
+  NeoBundle 'nanotech/jellybeans.vim'
+  NeoBundle 'Shougo/unite.vim'
+  NeoBundle 'Shougo/neomru.vim', {
+    \ 'depends' : 'Shougo/unite.vim'
+    \ }
+  NeoBundle 'Shougo/vimproc'
+  NeoBundle 'Shougo/neocomplete.vim'
+  NeoBundle 'scrooloose/syntastic.git'
+  NeoBundle 'tpope/vim-surround'
+  NeoBundle 'simeji/winresizer'
+ 
+  " vimrc に記述されたプラグインでインストールされていないものがないかチェック
+    する
+     85 NeoBundleCheck
+  call neobundle#end()
+  filetype plugin indent on
+  " どうせだから jellybeans カラースキーマを使ってみましょう
+  set t_Co=256
+  syntax on
+  colorscheme jellybeans
+ 
+ 
+  noremap j gj
+  noremap k gk
+  noremap <S-h>   ^
+  noremap <S-j>   }
+  noremap <S-k>   {
+  noremap <S-l>   $
+  nnoremap <CR> A<CR><ESC>
 
+
+  call plug#begin('~/.vim/plugged')
+      Plug 'tomasr/molokai'
+      " インデントに色を付けて見やすくする
+  Plug 'nathanaelkane/vim-indent-guides'
+  
+  " vimを立ち上げたときに、自動的にvim-indent-guidesをオンにする
+  let g:indent_guides_enable_on_vim_startup = 1
+
+  call plug#end()
+
+  "NERDTree
+  execute pathogen#infect()
+
+  " https://sites.google.com/site/fudist/Home/vim-nihongo-ban/-vimrc-sample
+  """"""""""""""""""""""""""""""
+　 " 挿入モード時、ステータスラインの色を変更
+  """"""""""""""""""""""""""""""
+  let g:hi_insert = 'highlight StatusLine guifg=darkblue guibg=darkyellow gui=    none ctermfg=blue ctermbg=yellow cterm=none'
+
+  if has('syntax')
+    augroup InsertHook
+      autocmd!
+      autocmd InsertEnter * call s:StatusLine('Enter')
+      autocmd InsertLeave * call s:StatusLine('Leave')
+    augroup END
+     endif
+     
+   let s:slhlcmd = ''
+ function! s:StatusLine(mode)
+ if a:mode == 'Enter'
+ silent! let s:slhlcmd = 'highlight ' . s:GetHighlight('StatusLine')
+ silent exec g:hi_insert
+ else
+ highlight clear StatusLine
+ silent exec s:slhlcmd
+ endif
+ endfunction
+ function! s:GetHighlight(hi)
+ redir => hl
+ exec 'highlight '.a:hi
+ redir END
+ let hl = substitute(hl, '[\r\n]', '', 'g')
+ let hl = substitute(hl, 'xxx', '', '')
+ return hl
+ endfunction
+ """"""""""""""""""""""""""""""
+ """"""""""""""""""""""""""""""
+ 
+ """"""""""""""""""""""""""""""
+ " 自動的に閉じ括弧を入力
+ """"""""""""""""""""""""""""""
+ imap { {}<LEFT>
+ imap [ []<LEFT>
+ imap ( ()<LEFT>
+ """"""""""""""""""""""""""""""
+
+ """"""""""""""""""""""""""""""
+ " 最後のカーソル位置を復元する
+ """"""""""""""""""""""""""""""
+ if has("autocmd")
+     autocmd BufReadPost *
+     \ if line("'\"") > 0 && line ("'\"") <= line("$") |
+     \   exe "normal! g'\"" |
+     \ endif
+ endif
+ """"""""""""""""""""""""""""""
+
+ noremap <F5> <ESC>:call RUN()<ENTER>
+ function! RUN()
+   :w|!./%;read
+ endfunction
+
+ nnoremap ; :
+ nnoremap : ;
